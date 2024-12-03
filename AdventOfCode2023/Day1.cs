@@ -4,7 +4,7 @@ namespace AdventOfCode2023;
 
 public class Day1 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var sum = 0;
         foreach (var line in input)
@@ -23,10 +23,10 @@ public class Day1 : ISolvable
             sum += firstNum * 10 + curNum;
         }
 
-        Console.WriteLine(sum);
+        return sum.ToString();
     }
 
-    public void SolvePart2(string[] input)
+    public string SolvePart2(string[] input)
     {
         var map = new Dictionary<string, int>
         {
@@ -68,6 +68,6 @@ public class Day1 : ISolvable
             resBuilder.Clear();
         }
 
-        SolvePart1(arr.ToArray());
+        return SolvePart1(arr.ToArray());
     }
 }

@@ -1,6 +1,6 @@
 public class Day2 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var maxValues = new Dictionary<string, int>
         {
@@ -26,10 +26,10 @@ public class Day2 : ISolvable
                 sum += i + 1;
         }
 
-        Console.WriteLine(sum);
+        return sum.ToString();
     }
 
-    public void SolvePart2(string[] input)
+    public string SolvePart2(string[] input)
     {
         
         var sum = 0;
@@ -52,6 +52,6 @@ public class Day2 : ISolvable
             sum += maxValues.Values.Aggregate((x, y) => x * y);
         }
 
-        Console.WriteLine(sum);
+        return sum.ToString();
     }
 }

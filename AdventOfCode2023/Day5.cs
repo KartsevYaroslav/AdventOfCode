@@ -1,6 +1,6 @@
 public class Day5 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var seeds = input.First()
                          .Split(':')
@@ -45,10 +45,10 @@ public class Day5 : ISolvable
             min = Math.Min(curNum, min);
         }
 
-        Console.WriteLine(min);
+        return min.ToString();
     }
 
-    public void SolvePart2(string[] input)
+    public string SolvePart2(string[] input)
     {
         var seeds = input.First()
                          .Split(':')
@@ -79,54 +79,55 @@ public class Day5 : ISolvable
         foreach (var range in seedRanges)
         {
             var curLoc = "seed";
-            var curRanges = new List<Range>{range};
+            var curRanges = new List<Range> {range};
 
             while (true)
             {
                 curRanges = SplitRanges(curRanges, dict[curLoc].Item2);
 
                 curLoc = dict[curLoc].Item1;
-                if(curLoc == "location")
+                if (curLoc == "location")
                     break;
             }
-            
-            
+
 
             min = Math.Min(curRanges.OrderBy(x => x.Start).First().Start, min);
         }
 
-        Console.WriteLine(min);
+        return min.ToString();
     }
 
     private List<Range> SplitRanges(List<Range> ranges, List<Map> map)
     {
         var res = new List<Range>();
-        
+
         foreach (var range in ranges.OrderBy(x => x.Start))
         {
             var curStart = range.Start;
             foreach (var curMap in map.OrderBy(x => x.Source))
             {
-                if(curStart > curMap.SourceEnd)
+                if (curStart > curMap.SourceEnd)
                     continue;
-                
+
                 if (range.End < curMap.Source)
                 {
                     res.Add(new Range(curStart, range.End - curStart + 1));
                     break;
                 }
+
                 if (range.End <= curMap.SourceEnd && curStart >= curMap.Source)
                 {
                     res.Add(new Range(curMap.Dest + (curStart - curMap.Source), range.End - curStart + 1));
                     break;
                 }
-                
+
                 if (range.End >= curMap.Source && range.End <= curMap.SourceEnd && curStart < curMap.Source)
                 {
                     res.Add(new Range(curStart, curMap.Source - curStart + 1));
                     res.Add(new Range(curMap.Dest, range.End - curMap.Source + 1));
                     break;
                 }
+
                 if (range.End >= curMap.SourceEnd && curStart <= curMap.Source)
                 {
                     res.Add(new Range(curStart, curMap.Source - curStart + 1));
@@ -134,7 +135,7 @@ public class Day5 : ISolvable
                     curStart = curMap.SourceEnd + 1;
                     continue;
                 }
-                
+
                 if (range.End > curMap.SourceEnd && curStart > curMap.Source && curStart < curMap.SourceEnd)
                 {
                     res.Add(new Range(curMap.Dest + (curStart - curMap.Source), curMap.SourceEnd - curStart + 1));
@@ -142,8 +143,8 @@ public class Day5 : ISolvable
                 }
             }
         }
-        
-        if(!res.Any())
+
+        if (!res.Any())
             res.AddRange(ranges);
 
         return res;
@@ -153,9 +154,9 @@ public class Day5 : ISolvable
 public record Map(long Dest, long Source, long Length)
 {
     public long SourceEnd => Source + Length - 1;
-};
+}
 
 public record Range(long Start, long Length)
 {
     public long End => Start + Length - 1;
-};
+}

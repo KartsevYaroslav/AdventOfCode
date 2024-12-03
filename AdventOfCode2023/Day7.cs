@@ -1,11 +1,19 @@
 public class Day7 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var parsed = ParseInput(input);
         var res = Calculate(parsed);
 
-        Console.WriteLine(res);
+        return res.ToString();
+    }
+
+    public string SolvePart2(string[] input)
+    {
+        var parsed = ParseInput(input);
+        var res = Calculate2(parsed);
+
+        return res.ToString();
     }
 
     private long Calculate(IEnumerable<(string hand, int bid)> parsed)
@@ -17,7 +25,7 @@ public class Day7 : ISolvable
                          ['J'] = 11,
                          ['Q'] = 12,
                          ['K'] = 13,
-                         ['A'] = 14,
+                         ['A'] = 14
                      }))
                      .Select((x, i) => (i + 1) * (long) x.bid)
                      .Sum();
@@ -54,14 +62,6 @@ public class Day7 : ISolvable
     private IEnumerable<(string hand, int bid)> ParseInput(string[] input) =>
         input.Select(line => line.Split()).Select(parts => (parts[0], int.Parse(parts[1])));
 
-    public void SolvePart2(string[] input)
-    {
-        var parsed = ParseInput(input);
-        var res = Calculate2(parsed);
-
-        Console.WriteLine(res);
-    }
-
     private long Calculate2(IEnumerable<(string hand, int bid)> parsed)
     {
         var orderedEnumerable = parsed.Select(x => (orig: x, transformed: TransformToMax(x.hand)))
@@ -73,7 +73,7 @@ public class Day7 : ISolvable
                    ['J'] = 1,
                    ['Q'] = 12,
                    ['K'] = 13,
-                   ['A'] = 14,
+                   ['A'] = 14
                }))
                .Select((x, i) => (i + 1) * (long) x.orig.bid)
                .Sum();
@@ -82,7 +82,7 @@ public class Day7 : ISolvable
     private string TransformToMax(string hand)
     {
         var permutations = GetPermutations(hand, 0).ToList();
-        
+
         return permutations
                .Select(x => (str: x, points: GetWinPoints(x)))
                .MaxBy(x => x.points)
@@ -100,9 +100,9 @@ public class Day7 : ISolvable
         {
             foreach (var perm in GetPermutations(hand, skip + 1))
                 yield return perm;
-            
-            var notIncluded = new[]{'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A'}.Except(hand).First();
-            foreach (var newCh in hand.Distinct().Except(new[]{'J'}).Append(notIncluded))
+
+            var notIncluded = new[] {'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A'}.Except(hand).First();
+            foreach (var newCh in hand.Distinct().Except(new[] {'J'}).Append(notIncluded))
             {
                 var newStr = hand.ToArray();
                 newStr[i] = newCh;
@@ -115,7 +115,7 @@ public class Day7 : ISolvable
 
 internal class MyComparer : IComparer<string>
 {
-    private Dictionary<char, int> dict;
+    private readonly Dictionary<char, int> dict;
 
     public MyComparer(Dictionary<char, int> dict)
     {

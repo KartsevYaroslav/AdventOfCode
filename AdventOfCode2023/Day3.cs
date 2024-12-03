@@ -3,7 +3,7 @@ using System.Text;
 
 public class Day3 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var sum = 0L;
         for (int i = 0; i < input.Length; i++)
@@ -33,7 +33,7 @@ public class Day3 : ISolvable
             sum += found && builder.Length != 0 ? long.Parse(builder.ToString()) : 0;
         }
 
-        Console.WriteLine(sum);
+        return sum.ToString();
     }
 
     private IEnumerable<(int i1, int j1)> GetNeighbours(string[] input, int i, int j)
@@ -56,7 +56,7 @@ public class Day3 : ISolvable
             yield return (i - 1, j + 1);
     }
 
-    public void SolvePart2(string[] input)
+    public string SolvePart2(string[] input)
     {
         var sum = 0L;
         for (int i = 0; i < input.Length; i++)
@@ -80,7 +80,7 @@ public class Day3 : ISolvable
             }
         }
 
-        Console.WriteLine(sum);
+        return sum.ToString();
     }
 
     private int GetNum(string[] input, (int i, int j) pos)

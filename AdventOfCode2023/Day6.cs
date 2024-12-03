@@ -1,6 +1,6 @@
 public class Day6 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var times = input.First().Split(':').Last().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
         var distances = input.Last().Split(':').Last().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
@@ -9,17 +9,17 @@ public class Day6 : ISolvable
                             .Select(i => GetWinCounts(times[i], distances[i]))
                             .Aggregate((x, y) => x * y);
 
-        Console.WriteLine(res);
+        return res.ToString();
     }
 
-    public void SolvePart2(string[] input)
+    public string SolvePart2(string[] input)
     {
         var time = Parse(input.First());
         var distance = Parse(input.Last());
 
         var res = GetWinCounts(time, distance);
 
-        Console.WriteLine(res);
+        return res.ToString();
     }
 
     private static long Parse(string input)

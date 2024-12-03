@@ -1,6 +1,6 @@
 public class Day4 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var games = input.Select(x => x.Split(':')[1])
                          .Select(x => x.Split('|'))
@@ -17,10 +17,10 @@ public class Day4 : ISolvable
             res += (long) Math.Pow(2, wins.Count - 1);
         }
 
-        Console.WriteLine(res);
+        return res.ToString();
     }
 
-    public void SolvePart2(string[] input)
+    public string SolvePart2(string[] input)
     {
         var games = input.Select(x => x.Split(':')[1])
                          .Select(x => x.Split('|'))
@@ -40,6 +40,6 @@ public class Day4 : ISolvable
 
         var sum = dict.Values.Sum();
 
-        Console.WriteLine(sum);
+        return sum.ToString();
     }
 }

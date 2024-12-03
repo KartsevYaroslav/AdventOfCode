@@ -1,6 +1,6 @@
 public class Day8 : ISolvable
 {
-    public void SolvePart1(string[] input)
+    public string SolvePart1(string[] input)
     {
         var instructions = input.First();
         var graph = ParseGraph(input.Skip(2));
@@ -19,7 +19,7 @@ public class Day8 : ISolvable
             curNode = instructions[i1] == 'R' ? graph[curNode].right : graph[curNode].left;
         }
 
-        Console.WriteLine(turns);
+        return turns.ToString();
     }
 
     private Dictionary<string, (string left, string right)> ParseGraph(IEnumerable<string> input)
@@ -36,7 +36,7 @@ public class Day8 : ISolvable
     }
 
 
-    public void SolvePart2(string[] input)
+    public string SolvePart2(string[] input)
     {
         var instructions = input.First();
         var graph = ParseGraph(input.Skip(2));
@@ -63,7 +63,7 @@ public class Day8 : ISolvable
         var nod = GetNod(dict.Values.ToArray());
         var res = dict.Values.Select(x=>x/nod).Aggregate((x,y) => x * y) * nod;
         
-        Console.WriteLine(res);
+        return res.ToString();
     }
 
     private static long GetNod(long[] nums)
