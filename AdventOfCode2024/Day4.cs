@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode2024;
+﻿using Shared;
+
+namespace AdventOfCode2024;
 
 public class Day4 : ISolvable
 {
@@ -60,12 +62,11 @@ public class Day4 : ISolvable
             if (curLet == word.Length)
                 return true;
 
-            if (OutOfBorders() || input[pos.i][pos.j] != word[curLet++])
+            if (input.OutOfBorders(pos) || input[pos.i][pos.j] != word[curLet++])
                 return false;
 
             pos = (i: pos.i + diff.i, j: pos.j + diff.j);
         }
 
-        bool OutOfBorders() => pos.i < 0 || pos.j < 0 || pos.i >= input.Length || pos.j >= input[0].Length;
     }
 }
