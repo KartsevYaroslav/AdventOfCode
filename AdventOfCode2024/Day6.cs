@@ -4,21 +4,35 @@ namespace AdventOfCode2024;
 
 public class Day6 : ISolvable
 {
+    private readonly Dictionary<char, (int i1, int j1)> _directions =
+        new()
+        {
+            {'>', (0, 1)},
+            {'v', (1, 0)},
+            {'<', (0, -1)},
+            {'^', (-1, 0)}
+        };
+
+    private readonly Dictionary<char, char> _nextDirections =
+        new()
+        {
+            {'>', 'v'},
+            {'v', '<'},
+            {'<', '^'},
+            {'^', '>'}
+        };
+
     public string SolvePart1(string[] input)
     {
-        var nextDirs = GetNextDirs();
-        var directions = GetDirections();
-        var (ch, i, j) = GetStartPoint(input, directions);
+        var (ch, i, j) = GetStartPoint(input);
 
-        return GetVisitedCount(input.Select(x => x.ToCharArray()).ToArray(), (ch, i, j), directions, nextDirs).ToString();
+        return GetVisitedCount(input.Select(x => x.ToCharArray()).ToArray(), (ch, i, j)).ToString();
     }
 
     public string SolvePart2(string[] input)
     {
         var input1 = input.Select(x => x.ToCharArray()).ToArray();
-        var nextDirs = GetNextDirs();
-        var directions = GetDirections();
-        var pos = GetStartPoint(input, directions);
+        var pos = GetStartPoint(input);
 
         var res = 0;
         for (var k = 0; k < input1.Length; k++)
@@ -28,7 +42,7 @@ public class Day6 : ISolvable
                 continue;
 
             input1[k][l] = '#';
-            if (GetVisitedCount(input1, pos, directions, nextDirs) == -1)
+            if (GetVisitedCount(input1, pos) == -1)
                 res++;
 
             input1[k][l] = '.';
@@ -37,31 +51,10 @@ public class Day6 : ISolvable
         return res.ToString();
     }
 
-    private static (char c, int i, int j) GetStartPoint(string[] input, Dictionary<char, (int i1, int j1)> directions)
-    {
-        return input.SelectMany((x, i) => x.Select((c, j) => (c, i, j))).First(x => directions.ContainsKey(x.c));
-    }
+    private (char c, int i, int j) GetStartPoint(string[] input) =>
+        input.SelectMany((x, i) => x.Select((c, j) => (c, i, j))).First(x => _directions.ContainsKey(x.c));
 
-    private static Dictionary<char, (int i1, int j1)> GetDirections() =>
-        new()
-        {
-            {'>', (0, 1)},
-            {'v', (1, 0)},
-            {'<', (0, -1)},
-            {'^', (-1, 0)}
-        };
-
-    private static Dictionary<char, char> GetNextDirs() =>
-        new()
-        {
-            {'>', 'v'},
-            {'v', '<'},
-            {'<', '^'},
-            {'^', '>'}
-        };
-
-    private static int GetVisitedCount(char[][] input, (char ch, int i, int j) pos, Dictionary<char, (int i1, int j1)> directions,
-        Dictionary<char, char> nextDirs)
+    private int GetVisitedCount(char[][] input, (char ch, int i, int j) pos)
     {
         var visited = new HashSet<(int, int)>();
         var corners = new HashSet<(char, int, int)>();
@@ -73,7 +66,7 @@ public class Day6 : ISolvable
             {
                 pos = newPos;
                 visited.Add((pos.i, pos.j));
-                newPos = (pos.ch, i: pos.i + directions[pos.ch].i1, j: pos.j + directions[pos.ch].j1);
+                newPos = (pos.ch, i: pos.i + _directions[pos.ch].i1, j: pos.j + _directions[pos.ch].j1);
                 if (input.OutOfBorders((newPos.i, newPos.j)))
                     return visited.Count;
             }
@@ -81,7 +74,7 @@ public class Day6 : ISolvable
             if (!corners.Add(pos))
                 return -1;
 
-            pos.ch = nextDirs[pos.ch];
+            pos.ch = _nextDirections[pos.ch];
         }
     }
 }
