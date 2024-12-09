@@ -7,16 +7,35 @@ public class Day8 : ISolvable
     public string SolvePart1(string[] input)
     {
         var dict = ParseInput(input);
-        var antinodes = GetAntinodes(input, dict);
+        var antinodes = GetAntinodes(dict, Handler);
 
         return antinodes.Count.ToString();
+
+        void Handler(Func<(int, int), (int, int)> act, (int, int) pos)
+        {
+            if (!input.OutOfBorders(pos))
+                act(pos);
+        }
     }
 
     public string SolvePart2(string[] input)
     {
         var dict = ParseInput(input);
+        var antinodes = GetAntinodes(dict, Handler);
+
+        return antinodes.Concat(dict.SelectMany(x => x.Value)).Distinct().Count().ToString();
+
+        void Handler(Func<(int, int), (int, int)> act, (int, int) pos)
+        {
+            while (!input.OutOfBorders(pos))
+                pos = act(pos);
+        }
+    }
+
+    private static HashSet<(int, int)> GetAntinodes(Dictionary<char, List<(int i, int j)>> dict, Action<Func<(int, int), (int, int)>, (int, int)> handler)
+    {
         var antinodes = new HashSet<(int, int)>();
-        foreach (var (key, positions) in dict)
+        foreach (var (_, positions) in dict)
         {
             for (var i = 0; i < positions.Count; i++)
             for (var j = i + 1; j < positions.Count; j++)
@@ -26,46 +45,18 @@ public class Day8 : ISolvable
                 var diff = (i: left.i - right.i, j: left.j - right.j);
                 var newPos1 = (i: left.i + diff.i, j: left.j + diff.j);
                 var newPos2 = (i: right.i - diff.i, j: right.j - diff.j);
-
-                while (!input.OutOfBorders(newPos1))
-                {
-                    antinodes.Add(newPos1);
-                    newPos1 = (newPos1.i + diff.i, newPos1.j + diff.j);
-                }
-
-                while (!input.OutOfBorders(newPos2))
-                {
-                    antinodes.Add(newPos2);
-                    newPos2 = (newPos2.i - diff.i, newPos2.j - diff.j);
-                }
-            }
-        }
-
-        return antinodes.Concat(dict.SelectMany(x => x.Value)).Distinct().Count().ToString();
-    }
-
-    private static HashSet<(int, int)> GetAntinodes(string[] input, Dictionary<char, List<(int i, int j)>> dict)
-    {
-        var antinodes = new HashSet<(int, int)>();
-        foreach (var (key, positions) in dict)
-        {
-            for (var i = 0; i < positions.Count; i++)
-            for (var j = i + 1; j < positions.Count; j++)
-            {
-                var left = positions[i];
-                var right = positions[j];
-                var diff = (i: left.i - right.i, j: left.j - right.j);
-                var newPos1 = (left.i + diff.i, left.j + diff.j);
-                var newPos2 = (right.i - diff.i, right.j - diff.j);
-                if (!input.OutOfBorders(newPos1))
-                    antinodes.Add(newPos1);
-
-                if (!input.OutOfBorders(newPos2))
-                    antinodes.Add(newPos2);
+                handler(x => Add(x, diff, (l, r) => l + r), newPos1);
+                handler(x => Add(x, diff, (l, r) => l - r), newPos2);
             }
         }
 
         return antinodes;
+
+        (int, int) Add((int i, int j) pos, (int i, int j) diff, Func<int, int, int> func)
+        {
+            antinodes.Add(pos);
+            return (func(pos.i, diff.i), func(pos.j, diff.j));
+        }
     }
 
     private static Dictionary<char, List<(int i, int j)>> ParseInput(string[] input)
