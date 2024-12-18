@@ -63,4 +63,6 @@ public static class Extensions
             yield return (pos.i - 1, pos.j + 1);
     }
 
+    public static Point Move(this Point p, int dx, int dy) => new(p.X + dx, p.Y + dy);
+    public static Point Move(this Point p,(int dx, int dy) diff) => new(p.X + diff.dx, p.Y + diff.dy);
 }
