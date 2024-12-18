@@ -1,4 +1,4 @@
-public class Day2 : ISolvable
+public class Day2 : ISolvable<string>
 {
     public string SolvePart1(string[] input)
     {

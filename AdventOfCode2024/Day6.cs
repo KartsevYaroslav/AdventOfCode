@@ -2,7 +2,7 @@
 
 namespace AdventOfCode2024;
 
-public class Day6 : ISolvable
+public class Day6 : ISolvable<string>
 {
     private readonly Dictionary<char, (int i1, int j1)> _directions =
         new()

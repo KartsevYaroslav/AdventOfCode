@@ -2,7 +2,7 @@
 
 namespace AdventOfCode2024;
 
-public class Day10 : ISolvable
+public class Day10 : ISolvable<string>
 {
     public string SolvePart1(string[] input)
     {

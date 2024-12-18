@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode2024;
 
-public class Day7 : ISolvable
+public class Day7 : ISolvable<string>
 {
     private readonly List<Func<long, long, long>> _funcs =
     [

@@ -1,19 +1,19 @@
 ﻿namespace AdventOfCode2024;
 
-public class Day13 : ISolvable
+public class Day13 : ISolvable<long>
 {
-    public string SolvePart1(string[] input)
+    public long SolvePart1(string[] input)
     {
         var cases = ParseInput(input);
 
-        return SolveInternal(cases).ToString();
+        return SolveInternal(cases);
     }
 
-    public string SolvePart2(string[] input)
+    public long SolvePart2(string[] input)
     {
         var cases = ParseInput(input, 10000000000000);
 
-        return SolveInternal(cases).ToString();
+        return SolveInternal(cases);
     }
 
     private static long SolveInternal(List<Case> cases)

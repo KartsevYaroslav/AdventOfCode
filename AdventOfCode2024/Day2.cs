@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode2024;
 
-public class Day2 : ISolvable
+public class Day2 : ISolvable<string>
 {
     public string SolvePart1(string[] input) => ParseInput(input).Count(IsSafe).ToString();
 

@@ -1,5 +1,5 @@
-public interface ISolvable
+public interface ISolvable<out TRes>
 {
-    string SolvePart1(string[] input);
-    string SolvePart2(string[] input) => "stub";
+    TRes SolvePart1(string[] input);
+    TRes SolvePart2(string[] input) => default!;
 }

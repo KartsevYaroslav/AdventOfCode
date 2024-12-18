@@ -3,7 +3,7 @@ using Shared;
 
 namespace AdventOfCode2024;
 
-public class Day12 : ISolvable
+public class Day12 : ISolvable<string>
 {
     public string SolvePart1(string[] input)
     {
