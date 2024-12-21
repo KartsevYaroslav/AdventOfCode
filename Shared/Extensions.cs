@@ -19,6 +19,7 @@ public static class Extensions
     }
 
     public static T At<T>(this T[][] input, (int i, int j) pos) => input[pos.i][pos.j];
+    public static void Set<T>(this T[][] input, (int i, int j) pos, T val) => input[pos.i][pos.j] = val;
 
     public static IEnumerable<(int i1, int j1)> GetDirectNeighbours<T>(this T[][] input, (int i, int j) pos)
     {
