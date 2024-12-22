@@ -123,12 +123,15 @@ public class Day16 : ISolvable<int>
                     _ when neighbour == position.Move().Point  => (position.Move(), distance + 1),
                     _ => throw new ArgumentOutOfRangeException()
                 };
-
-                if (distances[newPos] < newDist)
-                    continue;
-
+                
                 if (!paths.ContainsKey(newPos))
                     paths[newPos] = [];
+                
+                if (distances[newPos] == newDist)
+                    paths[newPos].Add(position);
+
+                if (distances[newPos] <= newDist)
+                    continue;
 
                 if (distances[newPos] > newDist)
                     paths[newPos].Clear();
