@@ -12,6 +12,8 @@ public static class Extensions
     public static bool OutOfBorders(this string[] input, (int i, int j) pos)
         => pos.i < 0 || pos.j < 0 || pos.i >= input.Length || pos.j >= input[0].Length;
 
+    public static int GetIndex<T>(this T[] array, int curIndex, int diff) => (curIndex + diff + array.Length) % array.Length;
+
     public static char[][] ToCharArray(this string[] input) => input.Select(x => x.ToCharArray()).ToArray();
     public static IEnumerable<Point> GetAllPoints(this char[][] map) => map.SelectMany((x, i) => x.Select((_, j) => new Point(i, j)));
 
