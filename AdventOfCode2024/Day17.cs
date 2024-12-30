@@ -7,7 +7,7 @@ public class Day17 : ISolvable<string>
         var regs = new[] {input[0], input[1], input[2]}.Select(x => x.Split().Last()).Select(long.Parse).ToArray();
         var commands = input.Last().Split().Last().Split(',').Select(int.Parse).ToArray();
 
-        var output = Output(regs, commands);
+        var output = Run(regs, commands);
 
         return string.Join(',', output);
     }
@@ -21,7 +21,7 @@ public class Day17 : ISolvable<string>
         return GetResult(commands).ToString();
     }
 
-    private static List<long> Output(long[] regs, int[] commands)
+    private static List<long> Run(long[] regs, int[] commands)
     {
         var operands = new[] {0, 1, 2, 3, regs[0], regs[1], regs[2]};
         var pointer = 0;
@@ -63,19 +63,19 @@ public class Day17 : ISolvable<string>
     private static long GetResult(int[] commands)
     {
         var queue = new Queue<(long num, int index)>();
-        queue.Enqueue((0, 0));
+        queue.Enqueue((0, commands.Length - 1));
         while (queue.Count != 0)
         {
-            var (num, index) = queue.Dequeue();
-            if (index == commands.Length)
-                return num;
-
-            for (var i = 0; i < 8; i++)
+            var (curAReg, index) = queue.Dequeue();
+            if (index == -1)
+                return curAReg;
+            // for each digit in output only 3 last bits matter
+            for (var possibleReminder = 0; possibleReminder < 8; possibleReminder++)
             {
-                var newNum = (num << 3) + i;
-                var output = Output([newNum, 0, 0], commands);
-                if (output.Count > index && output[^(index + 1)] == commands[^(index + 1)])
-                    queue.Enqueue((newNum, index + 1));
+                var newAReg = (curAReg << 3) + possibleReminder;
+                var output = Run([newAReg, 0, 0], commands);
+                if (output.First() == commands[index])
+                    queue.Enqueue((newAReg, index - 1));
             }
         }
 
