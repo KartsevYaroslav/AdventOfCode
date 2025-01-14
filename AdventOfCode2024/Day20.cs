@@ -1,95 +1,53 @@
-﻿using System.Diagnostics;
-using Shared;
+﻿using Shared;
 
 namespace AdventOfCode2024;
 
 public class Day20 : ISolvable<int>
 {
-    public int SolvePart1(string[] input)
+    public int SolvePart1(string[] input) => GetCheats(input, 2);
+
+    public int SolvePart2(string[] input) => GetCheats(input, 20);
+
+    private static int GetCheats(string[] input, int cheatSec)
     {
         var map = input.ToCharArray();
         var start = map.GetAllPoints().First(x => map.At(x) == 'S');
         var singlePathDistances = GetDistances(map, start);
 
-        return GetPossibleCheatsBfs(map, singlePathDistances, 2);
+        return GetPossibleCheats(singlePathDistances, cheatSec);
     }
 
-    public int SolvePart2(string[] input)
-    {
-        var map = input.ToCharArray();
-        var start = map.GetAllPoints().First(x => map.At(x) == 'S');
-        var singlePathDistances = GetDistances(map, start);
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
-        var res = GetPossibleCheats(singlePathDistances, 20);
-        stopwatch.Stop();
-        Console.WriteLine($"Without BFS: {stopwatch.ElapsedMilliseconds}");
-        stopwatch.Restart();
-        var res2 = GetPossibleCheatsBfs(map, singlePathDistances, 20);
-        stopwatch.Stop();
-        Console.WriteLine($"With BFS: {stopwatch.ElapsedMilliseconds}");
-
-        return res;
-    }
-
-    private static int GetPossibleCheats(Dictionary<Point, int> distances, int cheatSec)
+    private static int GetPossibleCheats(Dictionary<Point, int> basePath, int cheatSec)
     {
         var res = 0;
-        var keys = distances.Keys.ToList();
+        var keys = basePath.Keys.ToList();
         const int savedTurns = 100;
         for (var i = 0; i < keys.Count - savedTurns; i++)
         {
-            var start = keys[i];
-            for (var j = i + savedTurns; j < keys.Count; j++)
+            var (x, y) = keys[i];
+            var visited = new HashSet<Point>();
+
+            for (var cheatDist = 2; cheatDist <= cheatSec; cheatDist++)
             {
-                var end = keys[j];
-                var fairDiff = distances[end] - distances[start];
+                for (var d = 0; d <= cheatDist; d++)
+                {
+                    Check((x + d, y + cheatDist - d));
+                    Check((x - d, y + cheatDist - d));
+                    Check((x + d, y - cheatDist + d));
+                    Check((x - d, y - cheatDist + d));
+                }
 
-                var dX = Math.Abs(end.X - start.X);
-                var dY = Math.Abs(end.Y - start.Y);
-                var cheatDiff = dX + dY;
-
-                if (cheatDiff <= cheatSec && fairDiff - cheatDiff >= savedTurns)
-                    res++;
+                void Check(Point otherPos)
+                {
+                    if (visited.Add(otherPos)
+                        && basePath.TryGetValue(otherPos, out var distToStart)
+                        && distToStart - basePath[(x, y)] - cheatDist >= savedTurns)
+                        res++;
+                }
             }
         }
 
         return res;
-    }
-
-    private static int GetPossibleCheatsBfs(char[][] map, Dictionary<Point, int> path, int cheatSec)
-    {
-        var keys = path.Keys.ToList();
-        var cheats = new HashSet<(Point, Point)>();
-        var start = keys.First();
-
-        var queue = new Queue<(Point pos, int dist)>();
-        var visited = new HashSet<Point>();
-        queue.Enqueue((start, 0));
-        visited.Add(start);
-        var startDist = path[start];
-        while (queue.Count != 0)
-        {
-            var (pos, dist) = queue.Dequeue();
-
-            if (dist++ == cheatSec)
-                continue;
-
-            foreach (var newPos in map.GetDirectNeighbours(pos).Where(x => !visited.Contains(x)))
-            {
-                if (path.TryGetValue(newPos, out var fairDist))
-                {
-                    var cheatDist = startDist + dist;
-                    if (fairDist - cheatDist >= 100)
-                        cheats.Add((start, newPos));
-                }
-
-                visited.Add(newPos);
-                queue.Enqueue((newPos, dist));
-            }
-        }
-
-        return cheats.Count;
     }
 
     private static Dictionary<Point, int> GetDistances(char[][] map, Point start)
