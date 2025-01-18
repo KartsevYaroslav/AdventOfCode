@@ -4,9 +4,12 @@ namespace AdventOfCode2024;
 
 public class Day21 : ISolvable<long>
 {
-    public long SolvePart1(string[] input)
+    public long SolvePart1(string[] input) => SolveInternal(input, 2);
+    public long SolvePart2(string[] input) => SolveInternal(input, 25);
+
+    private long SolveInternal(string[] input, int depth)
     {
-        var res = 0;
+        var res = 0L;
         foreach (var line in input)
         {
             var keypad = """
@@ -17,8 +20,7 @@ public class Day21 : ISolvable<long>
                          """
                          .Split("\r\n")
                          .ToCharArray();
-            int minLength = int.MaxValue;
-            var commands = GetCommands(line, keypad, ref minLength, new Dictionary<string, List<string>>());
+            var commands = GetCommands(line, keypad);
 
             keypad = """
                       ^A
@@ -26,16 +28,11 @@ public class Day21 : ISolvable<long>
                      """
                      .Split("\r\n")
                      .ToCharArray();
-
-            var dict = new Dictionary<string, List<string>>();
-            for (var j = 0; j < 2; j++)
-            {
-                minLength = int.MaxValue;
-                commands = commands.SelectMany(x => GetCommands(x, keypad, ref minLength, dict))
-                                   .ToList()
-                                   .Where(x => x.Length == minLength)
-                                   .ToList();
-            }
+            var memo = new Dictionary<(string, int), long>();
+            var minLength = commands.Select(command => command.Split('A'))
+                                    .Select(parts => parts.Sum(part => GetMin(part, 0, depth, keypad, memo)) - 1)
+                                    .Prepend(long.MaxValue)
+                                    .Min();
 
             var index = int.Parse(new string(line.Where(char.IsDigit).ToArray()));
             res += index * minLength;
@@ -44,31 +41,32 @@ public class Day21 : ISolvable<long>
         return res;
     }
 
-    private List<string> GetCommands(string line, char[][] map, ref int minLength, Dictionary<string, List<string>> dict)
+    private List<string> GetCommands(string line, char[][] map)
     {
         var startCh = 'A';
         var prevParts = new List<string> {""};
 
-        for (var i = 0; i < line.Length; i++)
+        foreach (var ch in line)
         {
-            var ch = line[i];
-            var start = map.GetAllPoints().First(x => map.At(x) == startCh);
-            var end = map.GetAllPoints().First(x => map.At(x) == ch);
-            var path = GetPath(map, start, end);
-            var nextParts = GetCommands(path, end, start).ToList();
-
-            prevParts = nextParts.SelectMany(x => prevParts.Select(y => y + x + 'A')).ToList();
+            prevParts = GetNextParts(startCh, ch, map)
+                        .Select(x => x + 'A')
+                        .SelectMany(next => prevParts.Select(prev => prev + next))
+                        .ToList();
             startCh = ch;
-
-            if (prevParts.First().Length > minLength)
-                return [];
         }
 
-        minLength = prevParts.First().Length;
         return prevParts;
     }
 
-    private IEnumerable<string> GetCommands(Dictionary<Point, HashSet<Point>> paths, Point curPoint, Point start)
+    private List<string> GetNextParts(char startCh, char endCh, char[][] map)
+    {
+        var start = map.GetAllPoints().First(x => map.At(x) == startCh);
+        var end = map.GetAllPoints().First(x => map.At(x) == endCh);
+        var path = GetPath(map, start, end);
+        return GetCommands(path, end, start).ToList();
+    }
+
+    private static IEnumerable<string> GetCommands(Dictionary<Point, HashSet<Point>> paths, Point curPoint, Point start)
     {
         if (curPoint == start)
         {
@@ -127,5 +125,25 @@ public class Day21 : ISolvable<long>
         }
 
         return paths;
+    }
+
+    private long GetMin(string part, int depth, int maxDepth, char[][] map, Dictionary<(string part, int depth), long> dict)
+    {
+        if (depth == maxDepth)
+            return part.Length + 1;
+
+        if (dict.TryGetValue((part, depth), out var minPath))
+            return minPath;
+
+        var startCh = 'A';
+        var res = 0L;
+        foreach (var endCh in part + 'A')
+        {
+            res += GetNextParts(startCh, endCh, map).Select(x => GetMin(x, depth + 1, maxDepth, map, dict)).Min();
+            startCh = endCh;
+        }
+
+        dict[(part, depth)] = res;
+        return res;
     }
 }
