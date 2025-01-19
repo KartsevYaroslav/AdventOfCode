@@ -2,7 +2,7 @@
 
 var lines = File.ReadAllLines("input.txt");
 
-ISolvable<long> day = new Day21();
+ISolvable<long> day = new Day22();
 var res1 = day.SolvePart1(lines);
 Console.WriteLine($"Part 1: {res1}");
 
