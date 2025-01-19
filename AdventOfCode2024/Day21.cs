@@ -41,7 +41,7 @@ public class Day21 : ISolvable<long>
         return res;
     }
 
-    private List<string> GetCommands(string line, char[][] map)
+    private static List<string> GetCommands(string line, char[][] map)
     {
         var startCh = 'A';
         var prevParts = new List<string> {""};
@@ -58,15 +58,16 @@ public class Day21 : ISolvable<long>
         return prevParts;
     }
 
-    private List<string> GetNextParts(char startCh, char endCh, char[][] map)
+    private static List<string> GetNextParts(char startCh, char endCh, char[][] map)
     {
         var start = map.GetAllPoints().First(x => map.At(x) == startCh);
         var end = map.GetAllPoints().First(x => map.At(x) == endCh);
         var path = GetPath(map, start, end);
-        return GetCommands(path, end, start).ToList();
+        
+        return PathToCommands(path, end, start).ToList();
     }
 
-    private static IEnumerable<string> GetCommands(Dictionary<Point, HashSet<Point>> paths, Point curPoint, Point start)
+    private static IEnumerable<string> PathToCommands(Dictionary<Point, HashSet<Point>> paths, Point curPoint, Point start)
     {
         if (curPoint == start)
         {
@@ -87,12 +88,12 @@ public class Day21 : ISolvable<long>
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            foreach (var next in GetCommands(paths, prevPoint, start))
+            foreach (var next in PathToCommands(paths, prevPoint, start))
                 yield return next + command;
         }
     }
 
-    private Dictionary<Point, HashSet<Point>> GetPath(char[][] map, Point start, Point end)
+    private static Dictionary<Point, HashSet<Point>> GetPath(char[][] map, Point start, Point end)
     {
         var paths = new Dictionary<Point, HashSet<Point>>();
         var queue = new Queue<(Point, int)>();
