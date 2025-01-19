@@ -2,14 +2,14 @@
 
 public class Day22 : ISolvable<long>
 {
+    private const int GenerationsCount = 2000;
+
     private readonly List<Func<long, long>> _steps =
     [
         x => ((x * 64) ^ x) % 16777216,
         x => ((x / 32) ^ x) % 16777216,
         x => ((x * 2048) ^ x) % 16777216
     ];
-
-    private const int GenerationsCount = 2000;
 
     public long SolvePart1(string[] input)
     {
@@ -28,30 +28,29 @@ public class Day22 : ISolvable<long>
 
     public long SolvePart2(string[] input)
     {
-        var memo = new Dictionary<(long, long, long, long), long>();
+        var memo = new Dictionary<int, int>();
         foreach (var num in input.Select(long.Parse))
         {
             var newNum = num;
-            var diffs = new List<long>();
-            var last = num % 10;
+            var diffs = new List<int>();
+            var lastReminder = (int) (num % 10);
             for (var j = 0; j < GenerationsCount - 1; j++)
             {
                 newNum = _steps.Aggregate(newNum, (current, step) => step(current));
-                var reminder = newNum % 10;
-                diffs.Add(reminder - last);
-                last = reminder;
+                var reminder = (int) (newNum % 10);
+                diffs.Add(reminder - lastReminder);
+                lastReminder = reminder;
             }
 
-            Index(num, diffs, memo);
+            Index((int) (num % 10), diffs, memo);
         }
 
         return memo.Max(x => x.Value);
     }
 
-    private static void Index(long num, List<long> diffs, Dictionary<(long, long, long, long), long> dict)
+    private static void Index(int truncated, List<int> diffs, Dictionary<int, int> dict)
     {
-        var truncated = num % 10;
-        var visited = new HashSet<(long, long, long, long)>();
+        var visited = new HashSet<int>();
         for (var i = 0; i < diffs.Count - 4; i++)
         {
             var i1 = i;
@@ -59,12 +58,12 @@ public class Day22 : ISolvable<long>
             var newNum = d1 + d2 + d3 + d4 + truncated;
             truncated += diffs[i];
 
-            if (!visited.Add((d1, d2, d3, d4)))
+            var hash = HashCode.Combine(d1, d2, d3, d4);
+            if (!visited.Add(hash))
                 continue;
 
-            if (!dict.ContainsKey((d1, d2, d3, d4)))
-                dict[(d1, d2, d3, d4)] = 0;
-            dict[(d1, d2, d3, d4)] += newNum;
+            dict.TryAdd(hash, 0);
+            dict[hash] += newNum;
         }
     }
 }
