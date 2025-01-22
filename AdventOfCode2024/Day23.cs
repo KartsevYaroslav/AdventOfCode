@@ -16,18 +16,13 @@ public class Day23 : ISolvable<string>
 
     public string SolvePart2(string[] input)
     {
-        var maxStr = "";
+        var maxPath = new List<string>();
+        SolveInternal(input, path => maxPath = path.Count > maxPath.Count ? path : maxPath);
 
-        SolveInternal(input, path =>
-        {
-            var pathStr = string.Join(",", path.OrderBy(x => x));
-            maxStr = pathStr.Length > maxStr.Length ? pathStr : maxStr;
-        }, int.MaxValue);
-
-        return maxStr;
+        return string.Join(",", maxPath.OrderBy(x => x));
     }
 
-    private static void SolveInternal(string[] input, Action<List<string>> act, int maxLength)
+    private static void SolveInternal(string[] input, Action<List<string>> act, int maxLength = int.MaxValue)
     {
         var dict = ParseInput(input);
         var unprocessed = dict.Keys.ToHashSet();
