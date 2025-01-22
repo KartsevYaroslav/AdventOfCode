@@ -3,13 +3,13 @@
 var lines = File.ReadAllLines("input.txt");
 
 var stopwatch = new Stopwatch();
-ISolvable<long> day = new Day22();
+ISolvable<string> day = new Day23();
 stopwatch.Start();
 var res1 = day.SolvePart1(lines);
 stopwatch.Stop();
-Console.WriteLine($"Part 1: {res1}, Elapsed: {stopwatch.ElapsedMilliseconds} ms");
+Console.WriteLine($"Part 1: '{res1}', Elapsed: {stopwatch.ElapsedMilliseconds} ms");
 
 stopwatch.Restart();
 var res2 = day.SolvePart2(lines);
 stopwatch.Stop();
-Console.WriteLine($"Part 2: {res2}, Elapsed: {stopwatch.ElapsedMilliseconds} ms");
+Console.WriteLine($"Part 2: '{res2}', Elapsed: {stopwatch.ElapsedMilliseconds} ms");
