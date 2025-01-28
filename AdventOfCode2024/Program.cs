@@ -3,7 +3,7 @@
 var lines = File.ReadAllLines("input.txt");
 
 var stopwatch = new Stopwatch();
-ISolvable<string> day = new Day23();
+ISolvable<string> day = new Day24();
 stopwatch.Start();
 var res1 = day.SolvePart1(lines);
 stopwatch.Stop();
