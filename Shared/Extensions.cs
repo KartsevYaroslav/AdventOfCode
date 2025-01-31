@@ -12,6 +12,20 @@ public static class Extensions
     public static bool OutOfBorders(this string[] input, (int i, int j) pos)
         => pos.i < 0 || pos.j < 0 || pos.i >= input.Length || pos.j >= input[0].Length;
 
+    public static T[][] Rotate<T>(this T[][] arr)
+    {
+        var array = arr[0].Select(_ => new T[arr.Length]).ToArray();
+        for (var i = 0; i < arr.Length; i++)
+        {
+            for (var j = 0; j < arr[0].Length; j++)
+            {
+                array[j][i] = arr[i][j];
+            }
+        }
+
+        return array;
+    }
+
     public static int GetIndex<T>(this T[] array, int curIndex, int diff) => (curIndex + diff + array.Length) % array.Length;
 
     public static char[][] ToCharArray(this string[] input) => input.Select(x => x.ToCharArray()).ToArray();
@@ -30,13 +44,13 @@ public static class Extensions
     {
         if (pos.i < input.Length - 1)
             yield return (pos.i + 1, pos.j);
-        
+
         if (pos.j < input[0].Length - 1)
             yield return (pos.i, pos.j + 1);
-        
+
         if (pos.i > 0)
             yield return (pos.i - 1, pos.j);
-        
+
         if (pos.j > 0)
             yield return (pos.i, pos.j - 1);
     }
