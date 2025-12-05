@@ -30,16 +30,13 @@ public class Day3 : ISolvable<long>
         return res;
     }
 
-    private static int GetMaxIndex(int[] nums, int startI, int remainDigits)
+    private static int GetMaxIndex(int[] nums, int maxI, int remainDigits)
     {
-        var max = nums[startI];
-        var maxI = startI;
-        for (var i = startI; i < nums.Length - remainDigits + 1; i++)
+        for (var i = maxI; i < nums.Length - remainDigits + 1; i++)
         {
-            if (nums[i] <= max)
+            if (nums[i] <= nums[maxI])
                 continue;
 
-            max = nums[i];
             maxI = i;
         }
 
