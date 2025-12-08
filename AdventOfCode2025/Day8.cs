@@ -11,9 +11,8 @@ public class Day8 : ISolvable<long>
     {
         var distances = ParseDistances(input);
         var graph = new Dictionary<Point3d, List<Point3d>>();
-        for (var i = 0; i < 10; i++)
+        foreach (var (pointL, pointR) in distances.OrderBy(x => x.Value).Take(1000).Select(x => x.Key))
         {
-            var (pointL, pointR) = distances.MinBy(x => x.Value).Key;
             if (!graph.ContainsKey(pointL))
                 graph[pointL] = [];
             if (!graph.ContainsKey(pointR))
@@ -60,13 +59,12 @@ public class Day8 : ISolvable<long>
         var graph = new Dictionary<Point3d, HashSet<Point3d>>();
         foreach (var (lP, rP) in distances.Keys)
         {
-            graph[lP] = new HashSet<Point3d>();
-            graph[rP] = new HashSet<Point3d>();
+            graph[lP] = [];
+            graph[rP] = [];
         }
 
-        while (distances.Count > 0)
+        foreach (var (l, r) in distances.OrderBy(x => x.Value).Select(x => x.Key))
         {
-            var (l, r) = distances.MinBy(x => x.Value).Key;
             distances.Remove((l, r));
             foreach (var neighbor in graph[r])
             {
