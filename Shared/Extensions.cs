@@ -89,4 +89,13 @@ public static class Extensions
 
     public static Point Move(this Point p, int dx, int dy) => new(p.X + dx, p.Y + dy);
     public static Point Move(this Point p, (int dx, int dy) diff) => new(p.X + diff.dx, p.Y + diff.dy);
+    public static long GetDistance(this Point p, Point other)
+    {
+        var pow = Math.Pow(p.X - other.X, 2) +
+                  Math.Pow(p.Y - other.Y, 2);
+        return (long)Math.Sqrt(pow);
+    }
+    
+    public static long GetAreaIncluded(this Rectangle r)
+        => (r.LeftTop.GetDistance(r.RightTop) + 1) * (r.LeftTop.GetDistance(r.LeftBottom) + 1);
 }

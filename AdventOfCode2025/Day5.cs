@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Shared;
 
 namespace AdventOfCode2025;
 
@@ -51,9 +52,4 @@ public class Day5 : ISolvable<long>
 
         return resultRanges.Sum(range => range.End + 1 - range.Start);
     }
-}
-
-public record Range(long Start, long End)
-{
-    public bool IsInRange(long i) => i >= Start && i <= End;
 }
