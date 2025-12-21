@@ -16,13 +16,19 @@ public class Day10 : ISolvable<long>
             var list = line.Split().ToList();
             var goalLights = list[0][1..^1];
             var buttons = list[1..^1]
-                .Select(x => x[1..^1].Split(',').Select(int.Parse).Select(y => (long)Math.Pow(2, y)).Sum())
+                .Select(x => x[1..^1].Split(',').Select(int.Parse).ToArray())
                 .ToList();
-            var goalNum = Convert.ToInt64(string.Join("", goalLights.Select(x => x == '#' ? "1" : "0").Reverse()), 2);
-            res += GetMinPresses(buttons, goalNum);
+            res += GetCombinations(goalLights, buttons).First().Count;
         }
 
         return res;
+    }
+
+    private static IEnumerable<List<int>> GetCombinations(string goalLights, List<int[]> buttons)
+    {
+        var longs = buttons.Select(x => x.Select(y => (long)Math.Pow(2, y)).Sum()).ToList();
+        var goalNum = Convert.ToInt64(string.Join("", goalLights.Select(x => x == '#' ? "1" : "0").Reverse()), 2);
+        return GetMinCombinations(longs, goalNum);
     }
 
     public long SolvePart2(string[] input)
@@ -36,10 +42,9 @@ public class Day10 : ISolvable<long>
             var buttons = list[1..^1]
                 .Select(x => x[1..^1].Split(',').Select(int.Parse).ToArray())
                 .ToList();
-            var buttonsIByNumI = GetIndexes(buttons, goalNums).Select(x => (x.Key, x.Value)).ToList();
 
-            var minPresses2 = GetMinPresses(goalNums, buttonsIByNumI);
-            res += minPresses2;
+            res += SolveFinal(goalNums, buttons, new Dictionary<string, long>());
+
             Console.WriteLine($"Line {c}, result: {res}");
             c++;
         }
@@ -47,136 +52,75 @@ public class Day10 : ISolvable<long>
         return res;
     }
 
-    private long GetMinPresses(int[] goalNums, List<(int i, List<int[]> buttons)> buttonsByNumI)
+    private static long SolveFinal(int[] goalNums, List<int[]> buttons, Dictionary<string, long> dictionary)
     {
-        if (buttonsByNumI.Count == 0)
+        if (goalNums.All(y => y == 0))
             return 0;
 
-        var (numI, validButtons) = buttonsByNumI
-            .Select(x => x with { buttons = x.buttons.Where(y => y.All(i => goalNums[i] > 0)).ToList() })
-            .Where(x => x.buttons.Count != 0)
-            .OrderBy(x => x.buttons.Count)
-            .FirstOrDefault();
+        if (goalNums.Any(x => x < 0))
+            return int.MaxValue;
+        
+        var key = string.Join("", goalNums);
+        if (dictionary.TryGetValue(key, out var res))
+            return res;
+        
+        dictionary[key] = int.MaxValue;
+        if (goalNums.All(y => y % 2 == 0))
+            dictionary[key] = Math.Min(DivideTwice(goalNums), dictionary[key]);
 
-        if (validButtons == null)
-            return -1;
-
-        var combinations = GetPossibleCombinations(validButtons.Count, goalNums[numI]);
-        // .Where(CheckCombination);
-
-        var min = long.MaxValue;
-        foreach (var combination in combinations)
+        var lights = string.Join("", goalNums.Select(x => x % 2 == 0 ? '.' : '#'));
+        foreach (var combination in GetCombinations(lights, buttons))
         {
-            FillArray(goalNums, validButtons, combination);
+            var indexes = combination.SelectMany(i => buttons[i]).ToList();
+            foreach (var i in indexes)
+                goalNums[i]--;
 
-            if (goalNums.Any(x => x < 0))
-            {
-                FillArray(goalNums, validButtons, combination, true);
-                continue;
-            }
+            var solveFinal = DivideTwice(goalNums);
+            foreach (var i in indexes)
+                goalNums[i]++;
 
-            var newDict = buttonsByNumI.Where(x => goalNums[x.i] > 0).ToList();
-            var minPresses = GetMinPresses(goalNums, newDict);
-            FillArray(goalNums, validButtons, combination, true);
-
-            if (minPresses != -1)
-                min = Math.Min(min, goalNums[numI] + minPresses);
+            dictionary[key] =  Math.Min(solveFinal + combination.Count, dictionary[key]);
         }
 
+        return dictionary[key];
 
-        return min == long.MaxValue ? -1 : min;
-
-        bool CheckCombination(List<int> ints)
+        long DivideTwice(int[] array)
         {
-            return validButtons.Zip(ints, (button, count) => (button, count))
-                .SelectMany(x => x.button.Select(y => (numIndex: y, x.count)))
-                .GroupBy(x => x.numIndex)
-                .All(group => goalNums[group.Key] >= group.Sum(x => x.count));
+            for (var i = 0; i < array.Length; i++)
+                array[i] /= 2;
+
+            var res1 = 2 * SolveFinal(array, buttons, dictionary);
+
+            for (var i = 0; i < array.Length; i++)
+                array[i] *= 2;
+
+            return res1;
         }
     }
 
-    private static void FillArray(int[] goalNums, List<int[]> buttons, List<int> combination, bool backward = false)
+    private static IEnumerable<List<int>> GetMinCombinations(List<long> buttons, long goalNum)
     {
-        for (var i = 0; i < buttons.Count; i++)
-            foreach (var numsI in buttons[i])
-            {
-                goalNums[numsI] = backward
-                    ? goalNums[numsI] + combination[i]
-                    : goalNums[numsI] - combination[i];
-            }
-    }
-
-    private IEnumerable<List<int>> GetPossibleCombinations(int buttonsCount, int remainNum)
-    {
-        if (buttonsCount == 0)
-        {
-            yield break;
-        }
-
-        if (buttonsCount == 1)
-        {
-            var list = new List<int> { remainNum };
-            _dict[(buttonsCount, remainNum)] = [list];
-            yield return list;
-            yield break;
-        }
-
-        if (_dict.TryGetValue((buttonsCount, remainNum), out var combinations))
-        {
-            foreach (var combination in combinations)
-                yield return combination;
-
-            yield break;
-        }
-
-        _dict[(buttonsCount, remainNum)] = [];
-        for (var newNum = 0; newNum <= remainNum; newNum++)
-        {
-            var possibleCombinations = GetPossibleCombinations(buttonsCount - 1, remainNum - newNum);
-
-            foreach (var possibleCombination in possibleCombinations)
-            {
-                var newCombination = possibleCombination.Prepend(newNum).ToList();
-                _dict[(buttonsCount, remainNum)].Add(newCombination);
-                yield return newCombination;
-            }
-        }
-    }
-
-    private static Dictionary<int, List<int[]>> GetIndexes(List<int[]> buttons, int[] goalNums)
-    {
-        var buttonsByNumI = goalNums.Select((_, i) => i).ToDictionary(x => x, _ => new List<int[]>());
-        for (var buttonI = 0; buttonI < buttons.Count; buttonI++)
-        {
-            foreach (var numI in buttons[buttonI])
-            {
-                buttonsByNumI[numI].Add(buttons[buttonI]);
-            }
-        }
-
-        return buttonsByNumI;
-    }
-
-    private static long GetMinPresses(List<long> buttons, long goalNum)
-    {
-        var queue = new Queue<(int buttonIndex, long curNum, long presses)>();
+        var queue = new Queue<(int buttonIndex, long curNum, List<int> buttons)>();
         for (var i = 0; i < buttons.Count; i++)
         {
-            queue.Enqueue((i, 0, 0));
+            queue.Enqueue((i, 0, []));
         }
 
-        while (true)
+        while (queue.Count > 0)
         {
             var (buttonIndex, curNum, presses) = queue.Dequeue();
-            if (curNum == goalNum)
-                return presses;
 
             curNum ^= buttons[buttonIndex];
+            presses.Add(buttonIndex);
 
-            for (var i = buttonIndex; i < buttons.Count; i++)
-            {
-                queue.Enqueue((i, curNum, presses + 1));
-            }
+            if (presses.Count > buttons.Count)
+                continue;
+
+            if (curNum == goalNum)
+                yield return presses;
+
+            for (var i = buttonIndex + 1; i < buttons.Count; i++)
+                queue.Enqueue((i, curNum, presses.ToList()));
         }
     }
 }
