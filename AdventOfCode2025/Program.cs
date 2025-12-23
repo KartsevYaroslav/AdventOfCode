@@ -6,7 +6,7 @@ using AdventOfCode2025;
 var lines = File.ReadAllLines("input.txt");
 
 var stopwatch = new Stopwatch();
-ISolvable<long> day = new Day10();
+ISolvable<long> day = new Day11();
 stopwatch.Start();
 var res1 = await day.SolvePart1Async(lines);
 stopwatch.Stop();
