@@ -11,7 +11,7 @@ public class Day10 : ISolvable<long>
         var graph = GetGraph(input);
         var start = input.SelectMany((x, i) => x.Select((y, j) => (i, j))).Single(x => input[x.i][x.j] == 'S');
 
-        graph[start] = [];
+        graph[start] = [(start.i + 1, start.j), (start.i - 1, start.j)];
         var turns = new Dictionary<Point, long>();
         var queue = new Queue<(Point, long)>();
         queue.Enqueue((start, 0));
