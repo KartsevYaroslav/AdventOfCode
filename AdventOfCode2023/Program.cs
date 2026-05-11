@@ -4,7 +4,7 @@ using AdventOfCode2023;
 var lines = File.ReadAllLines("input.txt");
 
 var stopwatch = new Stopwatch();
-ISolvable<long> day = new Day9();
+ISolvable<long> day = new Day10();
 stopwatch.Start();
 var res1 = await day.SolvePart1Async(lines);
 stopwatch.Stop();
